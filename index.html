@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reino RPG - Sistema Arcano</title>
+
+  <style>
+    /* --- CONFIGURACIÓN Y COLORES MÍSTICOS --- */
+    :root {
+      --bg-principal: #05070f;
+      --bg-contenedor: rgba(15, 18, 36, 0.75);
+      --color-oro: #dfb15b;
+      --color-magia: #4f3792;
+      --color-magia-hover: #9e75ff;
+      --color-texto: #e2e8f0;
+      --color-rojo: #ff4b6b;
+      --color-verde: #2ecc71;
+      --borde-cristal: rgba(223, 177, 91, 0.15);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at center, #0f1326 0%, var(--bg-principal) 100%);
+      color: var(--color-texto);
+      padding-top: 90px;
+      background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Georgia', serif;
+      color: var(--color-oro);
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(223, 177, 91, 0.3);
+      margin-top: 0;
+    }
+
+    /* --- PANTALLA DE LOGIN --- */
+    #login {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: radial-gradient(circle at center, #13122b 0%, #030408 100%);
+      z-index: 10000;
+    }
+
+    .card-login {
+      background: rgba(10, 11, 24, 0.65);
+      padding: 50px 40px;
+      border-radius: 20px;
+      text-align: center;
+      width: 350px;
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--borde-cristal);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 30px rgba(124, 77, 255, 0.15);
+    }
+
+    .card-login h2 { font-size: 2rem; margin-bottom: 10px; }
+    .card-login p { color: #8a9fc4; font-size: 0.95rem; margin-bottom: 30px; }
+
+    /* --- BARRA SUPERIOR (TOPBAR) --- */
+    .topbar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: rgba(7, 9, 21, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 999;
+      border-bottom: 1px solid var(--borde-cristal);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .profile { display: flex; align-items: center; gap: 15px; }
+    
+    .avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-magia), #3f51b5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      border: 2px solid var(--color-oro);
+      box-shadow: 0 0 10px rgba(223, 177, 91, 0.4);
+      overflow: hidden;
+    }
+
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .info #username { font-weight: bold; color: #ffffff; font-size: 1.05rem; }
+    .info small { color: #a0aec0; }
+    
+    .topbar-buttons { display: flex; gap: 10px; align-items: center; }
+
+    /* --- SECCIONES Y CONTENEDORES --- */
+    .section {
+      margin: 30px auto;
+      max-width: 1100px;
+      padding: 30px;
+      background: var(--bg-contenedor);
+      border-radius: 16px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .section h2 {
+      font-size: 1.7rem;
+      border-bottom: 1px solid rgba(223, 177, 91, 0.2);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* --- CUADRÍCULAS Y TARJETAS --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: rgba(25, 29, 54, 0.5);
+      padding: 25px 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      background: rgba(33, 38, 71, 0.7);
+      border-color: rgba(124, 77, 255, 0.4);
+    }
+
+    .card h3 { color: #ffffff; font-size: 1.3rem; margin-bottom: 10px; }
+    .card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
+
+    /* Estilos específicos para las tarjetas de casas */
+    .card.casa-elenare { border-left: 4px solid #2ecc71; }
+    .card.casa-caraxes { border-left: 4px solid #ff4b6b; }
+    .card.casa-varnethir { border-left: 4px solid #3498db; }
+
+    /* --- BOTONES HECHIZADOS --- */
+    button, .btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--color-magia) 0%, #5b36c2 100%);
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover, .btn:hover {
+      background: linear-gradient(135deg, var(--color-magia-hover) 0%, var(--color-magia) 100%);
+      transform: scale(1.02);
+    }
+
+    .btn-secondary { background: transparent; border: 1px solid var(--color-oro); color: var(--color-oro); }
+    .btn-secondary:hover { background: rgba(223, 177, 91, 0.1); }
+    .btn-admin { background: linear-gradient(135deg, #e67e22, #d35400); margin-top:0; padding: 8px 16px; font-size:0.85rem;}
+    .btn-admin:hover { background: #e67e22; }
+    .logout { background: linear-gradient(135deg, var(--color-rojo) 0%, #cc3350 100%); padding: 8px 16px; font-size: 0.85rem; margin-top:0;}
+
+    /* --- PANTALLAS EN PARALELO (MÓDULOS) --- */
+    .pantalla-ficha {
+      margin: 40px auto;
+      max-width: 850px;
+      padding: 45px;
+      background: radial-gradient(circle at top, #11142b 0%, #070914 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(223, 177, 91, 0.3);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+    }
+    .subtitulo-ficha { text-align: center; color: #8a9fc4; font-style: italic; margin-bottom: 40px; }
+
+    /* --- ENCUESTA DE CASAS --- */
+    .pregunta-test {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(223, 177, 91, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .pregunta-test h4 { color: #ffffff; margin-bottom: 15px; font-size: 1.05rem; }
+    .opcion-test {
+      display: block;
+      background: rgba(13, 15, 30, 0.6);
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .opcion-test:hover { background: rgba(124, 77, 255, 0.1); border-color: rgba(124, 77, 255, 0.3); }
+    .opcion-test input { width: auto; margin-right: 10px; }
+
+    /* --- MODAL MÍSTICO PARA DETALLES DE RAZAS Y CASAS --- */
+    .modal-arcano {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(3, 4, 9, 0.85);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .modal-arcano.active { opacity: 1; pointer-events: auto; }
+    .modal-contenido {
+      background: radial-gradient(circle at top, #161a36 0%, #0a0c16 100%);
+      border: 1px solid var(--color-oro);
+      border-radius: 16px;
+      width: 90%; max-width: 700px;
+      padding: 30px;
+      box-shadow: 0 0 40px rgba(124, 77, 255, 0.25);
+      position: relative;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .cerrar-modal {
+      position: absolute; top: 15px; right: 20px;
+      font-size: 1.5rem; color: #8a9fc4; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .cerrar-modal:hover { color: var(--color-rojo); }
+    .imagen-raza-modal {
+      width: 100%; height: 260px;
+      object-fit: cover; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+
+    /* --- SISTEMA DE PESTAÑAS DEL PANEL ADMIN --- */
+    .tabs-admin {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      background: rgba(25, 29, 54, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0;
+      font-weight: normal;
+    }
+
+    .tab-btn:hover {
+      background: rgba(124, 77, 255, 0.1);
+      color: white;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--color-magia) 0%, #5b36c2 100%);
+      color: white;
+      font-weight: bold;
+      border-color: var(--color-magia);
+      box-shadow: 0 4px 12px rgba(124, 77, 255, 0.2);
+    }
+
+    /* --- TABLAS ADMINISTRATIVAS --- */
+    .tabla-arcana {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5px;
+      background: rgba(10, 12, 26, 0.6);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .tabla-arcana th, .tabla-arcana td {
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .tabla-arcana th { background: rgba(223, 177, 91, 0.1); color: var(--color-oro); font-family: 'Georgia', serif;}
+    .tabla-arcana tr:hover { background: rgba(255, 255, 255, 0.02); }
+    
+    .badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .badge.pendiente { background: rgba(241, 196, 15, 0.15); color: #f1c40f; border: 1px solid #f1c40f; }
+    .badge.aprobado { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid #2ecc71; }
+    .badge.rechazado { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid #e74c3c; }
+
+    .btn-accion { padding: 6px 12px; font-size: 0.8rem; margin: 2px; border-radius: 4px;}
+    .btn-aceptar { background: var(--color-verde); }
+    .btn-rechazar { background: #d35400; }
+    .btn-revisar { background: var(--color-magia); }
+    .btn-eliminar { background: var(--color-rojo); }
+    .btn-reiniciar { background: linear-gradient(135deg, #f39c12, #d35400); color: white; }
+
+    .log-consola {
+      background: #02040a;
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      color: #57f287;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+    .log-item { margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.03); padding-bottom: 4px;}
+    .log-item span { color: #8a9fc4; }
+
+    .caja-revision {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(223,177,91,0.2);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    /* --- FORMULARIOS --- */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 25px; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-oro); font-family: 'Georgia', serif; }
+    input, select, textarea { width: 100%; padding: 14px 15px; background: rgba(13, 15, 30, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; font-size: 0.95rem; box-sizing: border-box; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-oro); background: rgba(21, 24, 48, 0.9); }
+    textarea { min-height: 120px; resize: vertical; }
+  </style>
+</head>
+
+<body>
+
+  <div id="login">
+    <div class="card-login">
+      <div id="login-card-contenido">
+        <h2>Reino Arcano</h2>
+        <p>Cruza el umbral iniciando sesión</p>
+        <a id="discordLogin" class="btn">Vincular con Discord</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" style="display: none;">
+
+    <div class="topbar">
+      <div class="profile">
+        <div class="avatar" id="avatar">🔮</div>
+        <div class="info">
+          <div id="username">Invocador Solitario</div>
+          <small id="status-ficha">Ficha: Sin enviar</small> | 
+          <small id="house">Casa: Sin asignar</small>
+        </div>
+      </div>
+      <div class="topbar-buttons">
+        <button id="btn-panel-admin" class="btn-admin" onclick="abrirPanelAdmin()" style="display:none;">👑 Panel Admin</button>
+        <button class="logout" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div id="reino-contenido">
+      <section class="section">
+        <h2>📜 El Origen de los Tiempos</h2>
+        <p>Desde la fractura del Nexo Primordial, las razas han coexistido en un delicado equilibrio de magia y sangre. Elige tu camino sabiamente, pues las estrellas observan cada uno de tus pasos en estas tierras olvidadas.</p>
+        <a class="btn btn-secondary" href="lore.html">Sumergirse en el Lore</a>
+      </section>
+
+      <section class="section">
+        <h2>🏰 Las Grandes Casas del Reino</h2>
+        <p>Tres pilares sostienen la estructura del conocimiento y el poder. Cada casa define una filosofía de vida, un compromiso con el plano mágico y un destino para sus miembros.</p>
+        <div class="grid">
+          <div class="card casa-elenare">
+            <h3>Elenarë</h3>
+            <p>La Casa del Ciervo. Guardianes de la sabiduría mística, la armonía natural y el estudio de las runas antiguas.</p>
+            <button onclick="abrirMisteriosFaccion('elenare')">Ver Misterios</button>
+          </div>
+          <div class="card casa-caraxes">
+            <h3>Caraxes</h3>
+            <p>La Casa del Escorpión. El bastión de la ambición, la estrategia implacable, el poder político y las artes oscuras.</p>
+            <button onclick="abrirMisteriosFaccion('caraxes')">Ver Misterios</button>
+          </div>
+          <div class="card casa-varnethir">
+            <h3>Varnëthir</h3>
+            <p>La Casa del Lobo. Defensores de la lealtad inquebrantable, la justicia, el combate físico-mágico y la unión del grupo.</p>
+            <button onclick="abrirMisteriosFaccion('varnethir')">Ver Misterios</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🧬 Linajes y Razas</h2>
+        <div class="grid">
+          <div class="card"><h3>Magos</h3><p>Eruditos que canalizan la energía del nexo elemental y conjuran realidades.</p><button onclick="abrirMisteriosRaza('magos')">Ver Misterios</button></div>
+          <div class="card"><h3>Licántropos</h3><p>Almas bendecidas (o malditas) por el espíritu de la bestia y la luna plateada.</p><button onclick="abrirMisteriosRaza('licantropos')">Ver Misterios</button></div>
+          <div class="card"><h3>Vampiros</h3><p>Nobles de la noche eterna, eternamente bellos, peligrosos y sedientos.</p><button onclick="abrirMisteriosRaza('vampiros')">Ver Misterios</button></div>
+          <div class="card"><h3>Kitsune</h3><p>Espíritus zorro de tierras orientales, maestros de la ilusión y el fuego azul.</p><button onclick="abrirMisteriosRaza('kitsune')">Ver Misterios</button></div>
+          <div class="card"><h3>Cambia-formas</h3><p>Su carne es fluida como el agua; pueden imitar cualquier espécimen viviente.</p><button onclick="abrirMisteriosRaza('cambiaformas')">Ver Misterios</button></div>
+          <div class="card"><h3>Nereidas</h3><p>Doncellas y guardianes del abismo marino, capaces de controlar las mareas.</p><button onclick="abrirMisteriosRaza('nereidas')">Ver Misterios</button></div>
+          <div class="card"><h3>Elfos</h3><p>Criaturas ancestrales en sintonía perfecta con la naturaleza y las runas antiguas.</p><button onclick="abrirMisteriosRaza('elfos')">Ver Misterios</button></div>
+        </div>
+      </section>
+
+      <section class="section" id="bloque-registro-ficha" style="text-align: center;">
+        <h2>🧾 Registro de Personaje</h2>
+        <p>Para interactuar en el reino, debes forjar tu identidad y enviarla a los Oráculos:</p>
+        <div style="margin-top: 25px; display: flex; justify-content: center; gap: 20px;">
+          <button onclick="cambiarAPantallaFicha('seccion-ficha-alumno')">Forjar Ficha Estudiante / Adulto</button>
+          <button class="btn-secondary" onclick="cambiarAPantallaFicha('seccion-ficha-profesor')">Forjar Ficha Profesorado</button>
+        </div>
+      </section>
+
+      <section class="section" id="bloque-test-casas" style="display: none;">
+        <h2>⚖️ El Juicio del Destino: Selección de Casa</h2>
+        <p>Tu pergamino ha sido validado por el Concilio. Ahora debes responder con total honestidad para sintonizar tu alma con una de las grandes facciones del reino.</p>
+        
+        <form id="formulario-test" onsubmit="calcularCasaTest(event)">
+          <div class="pregunta-test">
+            <h4>1. ¿Qué cualidad valoras más en una persona?</h4>
+            <label class="opcion-test"><input type="radio" name="p1" value="A" required> Su sabiduría y calma interior 🌿</label>
+            <label class="opcion-test"><input type="radio" name="p1" value="B"> Su ambición y capacidad de liderazgo 🦂</label>
+            <label class="opcion-test"><input type="radio" name="p1" value="C"> Su lealtad y sentido de justicia 🐺</label>
+          </div>
+          <div class="pregunta-test">
+            <h4>2. Si surge un conflicto importante, tú normalmente…</h4>
+            <label class="opcion-test"><input type="radio" name="p2" value="A" required> Observas y reflexionas antes de actuar 🍃</label>
+            <label class="opcion-test"><input type="radio" name="p2" value="B"> Tomas el control y buscas la mejor estrategia ⚔️</label>
+            <label class="opcion-test"><input type="radio" name="p2" value="C"> Intentas unir a todos y encontrar equilibrio 🤝</label>
+          </div>
+          <div class="pregunta-test">
+            <h4>3. ¿Qué lugar te atrae más?</h4>
+            <label class="opcion-test"><input type="radio" name="p3" value="A" required> Un bosque antiguo lleno de vida 🌳</label>
+            <label class="opcion-test"><input type="radio" name="p3" value="B"> Una fortaleza oscura llena de secretos 🏰</label>
+            <label class="opcion-test"><input type="radio" name="p3" value="C"> Una aldea unida bajo las estrellas 🌙</label>
+          </div>
+          <div class="pregunta-test">
+            <h4>4. ¿Qué defecto te representa más?</h4>
+            <label class="opcion-test"><input type="radio" name="p4" value="A" required> Pensar demasiado antes de decidir ⏳</label>
+            <label class="opcion-test"><input type="radio" name="p4" value="B"> Ser demasiado competitivo 🔥</label>
+            <label class="opcion-test"><input type="radio" name="p4" value="C"> Evitar discusiones para mantener la paz 🕊️</label>
+          </div>
+          <div class="pregunta-test">
+            <h4>5. ¿Qué frase encaja más contigo?</h4>
+            <label class="opcion-test"><input type="radio" name="p5" value="A" required> “Todo tiene su tiempo y equilibrio.” 🌱</label>
+            <label class="opcion-test"><input type="radio" name="p5" value="B"> “El poder pertenece a quien se atreve.” 🦂</label>
+            <label class="opcion-test"><input type="radio" name="p5" value="C"> “Nadie lucha solo.” 🐺</label>
+          </div>
+          <div class="pregunta-test">
+            <h4>6. En un grupo de amigos, normalmente eres quien…</h4>
+            <label class="opcion-test"><input type="radio" name="p6" value="A" required> Da consejos y escucha con paciencia 📚</label>
+            <label class="opcion-test"><input type="radio" name="p6" value="B"> Organiza y toma decisiones difíciles 👑</label>
+            <label class="opcion-test"><input type="radio" name="p6" value="C"> Protege y mantiene unido al grupo ⚖️</label>
+          </div>
+
+          <div style="text-align: center;">
+            <button type="submit">Revelar mi Casa Absoluta</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="modal-misterios" class="modal-arcano" onclick="cerrarMisteriosRaza(event)">
+      <div class="modal-contenido" onclick="event.stopPropagation()">
+        <span class="cerrar-modal" onclick="cerrarMisteriosRaza(null)">&times;</span>
+        <h2 id="modal-titulo-raza">Cargando Misterio...</h2>
+        <img id="modal-img-raza" src="" class="imagen-raza-modal" alt="Ilustración mística">
+        <div id="modal-descripcion-raza" style="line-height: 1.6; color: #cbd5e1; font-size: 0.95rem;"></div>
+      </div>
+    </div>
+
+    <div id="seccion-ficha-alumno" class="pantalla-ficha" style="display: none;">
+      <h2>📜 Pergamino de Inscripción: Civil</h2>
+      <div class="subtitulo-ficha">Modela tu alma, define tu linaje y entra en el plano de la simulación</div>
+
+      <form onsubmit="enviarFichaSimulada(event, 'Alumno');">
+        <div class="form-row"><div class="form-group"><label>Nombre</label><input type="text" id="al-nombre" placeholder="Ej. Elenneis" required></div><div class="form-group"><label>Apellido</label><input type="text" id="al-apellido" placeholder="Ej. Hollow" required></div></div>
+        <div class="form-row"><div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="al-fecha" required></div><div class="form-group"><label>Nacionalidad</label><input type="text" id="al-nacionalidad" placeholder="Ej. Noruega" required></div></div>
+        <div class="form-row">
+          <div class="form-group"><label>Género</label><select id="al-genero"><option>Femenino</option><option>Masculino</option><option>Otro</option></select></div>
+          <div class="form-group"><label>Raza</label><select id="al-raza"><option>Mago</option><option>Licántropo</option><option>Vampiro</option><option>Kitsune</option><option>Cambia-Formas</option><option>Nereida</option><option>Elfo</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Estatus de sangre</label><select id="al-sangre"><option>Sangre pura</option><option>Mestizos</option><option>Nacidos de No mágicos</option></select></div>
+          <div class="form-group"><label>Tipo de personaje</label><select id="al-tipo"><option>Estudiante</option><option>Adulto</option></select></div>
+        </div>
+        <div class="form-group"><label>Descripción Física</label><textarea id="al-fisico" required></textarea></div>
+        <div class="form-group"><label>Interpretación</label><textarea id="al-psico" required></textarea></div>
+        <div class="form-group"><label>Historia</label><textarea id="al-historia" required></textarea></div>
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+          <button type="submit" style="flex: 2;">Consagrar Ficha al Concilio</button>
+          <button type="button" class="btn-secondary" style="flex: 1; margin-top: 12px;" onclick="regresarAlMenuReino()">Volver al Reino</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="seccion-ficha-profesor" class="pantalla-ficha" style="display: none;">
+      <h2>🔮 Cátedra de Sabios: Mentoría</h2>
+      <div class="subtitulo-ficha">Postula tu maestría ante el Alto Concilio</div>
+
+      <form onsubmit="enviarFichaSimulada(event, 'Profesor');">
+        <div class="form-row"><div class="form-group"><label>Nombre</label><input type="text" id="prof-nombre" placeholder="Ej. Theodore" required></div><div class="form-group"><label>Apellido</label><input type="text" id="prof-apellido" placeholder="Ej. Nott" required></div></div>
+        <div class="form-row"><div class="form-group"><label>Fecha de Nacimiento</label><input type="date" id="prof-fecha" required></div><div class="form-group"><label>Nacionalidad</label><input type="text" id="prof-nacionalidad" placeholder="Ej. Noruega" required></div></div>
+        <div class="form-row">
+          <div class="form-group"><label>Género</label><select id="prof-genero"><option>Femenino</option><option>Masculino</option><option>Otro</option></select></div>
+          <div class="form-group"><label>Raza</label><select id="prof-raza"><option>Mago</option><option>Licántropo</option><option>Vampiro</option><option>Kitsune</option><option>Cambia-Formas</option><option>Nereida</option><option>Elfo</option></select></div>
+        </div>
+        <div class="form-group"><label>Estatus de sangre</label><select id="prof-sangre"><option>Sangre pura</option><option>Mestizos</option><option>Nacidos de No mágicos</option></select></div>
+        <div class="form-group">
+          <label>Asignatura que deseas impartir</label>
+          <select id="prof-materia" onchange="if(this.value=='Otra'){document.getElementById('campo-otra-materia').style.display='block'}else{document.getElementById('campo-otra-materia').style.display='none'}">
+            <option>Pociones y Alquimia</option><option>Encantamientos</option><option>Estrategia en combate</option><option>Herbología</option><option>Runas</option><option>Historia de la Magia</option><option>Magia Elemental</option><option>Fauna Mágica</option><option>Astrología y Astronomía</option><option>Otra</option>
+          </select>
+        </div>
+        <div class="form-group" id="campo-otra-materia" style="display: none;"><label>Especificar otra asignatura</label><input type="text" id="prof-materia-otra" placeholder="Materia..."></div>
+        <div class="form-group"><label>Enlace de Drive con propuesta</label><input type="url" id="prof-drive" required></div>
+        <div class="form-group"><label>Descripción Física</label><textarea id="prof-fisico" required></textarea></div>
+        <div class="form-group"><label>Interpretación</label><textarea id="prof-psico" required></textarea></div>
+        <div class="form-group"><label>Historia</label><textarea id="prof-historia" required></textarea></div>
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+          <button type="submit" style="flex: 2; background: linear-gradient(135deg, var(--color-oro) 0%, #b3862b 100%);">Consagrar Ficha de Mentor</button>
+          <button type="button" class="btn-secondary" style="flex: 1; margin-top: 12px;" onclick="regresarAlMenuReino()">Volver al Reino</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="seccion-admin" class="pantalla-ficha" style="display: none; max-width:1100px;">
+      <h2>👑 Consola del Alto Concilio</h2>
+      <div class="subtitulo-ficha">Fichas segmentadas por estados energéticos</div>
+
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px;">
+        <div class="card" style="padding: 12px;"><h3 id="m-pendientes" style="color:#f1c40f; font-size: 1.6rem; margin:0;">0</h3><p style="margin:2px 0 0 0; font-size:0.85rem;">Pendientes</p></div>
+        <div class="card" style="padding: 12px;"><h3 id="m-aprobadas" style="color:#2ecc71; font-size: 1.6rem; margin:0;">0</h3><p style="margin:2px 0 0 0; font-size:0.85rem;">Aprobadas</p></div>
+        <div class="card" style="padding: 12px;"><h3 id="m-rechazadas" style="color:#e74c3c; font-size: 1.6rem; margin:0;">0</h3><p style="margin:2px 0 0 0; font-size:0.85rem;">Rechazadas</p></div>
+      </div>
+
+      <div class="log-consola" id="contenedor-logs" style="margin-bottom: 25px;"></div>
+
+      <div class="tabs-admin">
+        <button id="tab-pendientes" class="tab-btn active" onclick="cambiarFiltroTab('Pendiente')">⏳ Pendientes</button>
+        <button id="tab-aprobados" class="tab-btn" onclick="cambiarFiltroTab('Aprobado')">🟢 Aprobadas</button>
+        <button id="tab-rechazados" class="tab-btn" onclick="cambiarFiltroTab('Rechazado')">🔴 Rechazadas</button>
+      </div>
+
+      <table class="tabla-arcana">
+        <thead>
+          <tr>
+            <th>Usuario Discord</th>
+            <th>Nombre Rol</th>
+            <th>Tipo / Raza</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-fichas-cuerpo">
+          </tbody>
+      </table>
+
+      <div id="revisor-detalles" class="caja-revision" style="display:none;">
+        <h3 id="rev-titulo">Revisando Pergamino</h3>
+        <p><strong>Estatus/Linaje:</strong> <span id="rev-sangre">-</span> | <strong>Nacionalidad:</strong> <span id="rev-nacion">-</span></p>
+        <p><strong>Descripción Física:</strong><br><small id="rev-fisico"></small></p>
+        <p><strong>Perfil Psicológico:</strong><br><small id="rev-psico"></small></p>
+        <p><strong>Historia:</strong><br><small id="rev-historia"></small></p>
+        <div id="rev-extra-profesor"></div>
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap: wrap;" id="botones-revisor"></div>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px;">
+        <button class="btn-secondary" onclick="regresarAlMenuReino()">Cerrar Consola Administrativa</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const CLIENT_ID = "1506739511969714237";
+    const REDIRECT = window.location.origin + window.location.pathname;
+
+    // --- CONFIGURACIÓN DE ROLES Y SERVIDOR ---
+    const GUILD_ID = "1505865987478650940";
+    const ROLES_ACCESO = ["1505931430176231585", "1505931614600040640"]; // Roles para entrar a la web
+    const ROL_ADMIN   = "1506969791683100774";                           // Rol para el Panel Admin
+
+    // Scope ampliado: identify + guilds.members.read
+    document.getElementById("discordLogin").href =
+      `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify%20guilds.members.read`;
+
+    let baseFichas = [];
+    let currentUserRoles = []; // Roles del usuario en el servidor
+
+    let logsActividad = [
+      "🟢 El sistema arcano se ha iniciado correctamente.",
+      "📋 Esperando el envío de los primeros pergaminos por parte de los usuarios..."
+    ];
+
+    let filtroTabActual = "Pendiente";
+
+    // --- BASE DE DATOS DE RAZAS ---
+    const enciclopediaRazas = {
+      magos: {
+        titulo: "Los Magos: Tejedores de Realidades",
+        imagen: "https://images.unsplash.com/photo-1519074069444-1ba4fff16411?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> Los primeros humanos que lograron escuchar las pulsaciones del Nexo Primordial. No dependen de dotes físicas, sino de su capacidad mental y la pureza de sus canales energéticos.</p>
+                      <p><strong>Habilidades innatas:</strong> Canalización elemental (Fuego, Agua, Tierra, Aire), alquimia mística, barreras protectoras rúnicas y alteración sutil del espacio-tiempo.</p>
+                      <blockquote>"La fuerza decae con los años; el conocimiento del Nexo solo se vuelve más infinito y voraz."</blockquote>`
+      },
+      licantropos: {
+        titulo: "Los Licántropos: Furia Primordial",
+        imagen: "https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> Una estirpe unida espiritualmente a los espíritus alfa de la naturaleza. Aunque cargan con el mito de la maldición, para el reino son feroces guardianes del equilibrio forestal.</p>
+                      <p><strong>Habilidades innatas:</strong> Regeneración acelerada, sentidos hiperdesarrollados (rastreo), fuerza física descomunal y transformación total o parcial bajo influencias astrales.</p>
+                      <blockquote>"La luna no nos dicta el castigo, nos devuelve la libertad que el cemento nos robó."</blockquote>`
+      },
+      vampiros: {
+        titulo: "Los Vampiros: Nobles de la Sangre Eterna",
+        imagen: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> Nacidos de un pacto milenario en las sombras del viejo reino. Nobles, elegantes y peligrosamente longevos, dominan los estratos de la alta política y la magia de sangre.</p>
+                      <p><strong>Habilidades innatas:</strong> Inmortalidad biológica, velocidad relámpago, hipnosis visual (encanto) y manipulación hematológica (magia basada en sacrificios de sangre).</p>
+                      <blockquote>"La eternidad es un lienzo muy aburrido si no se pinta con la pasión de los mortales."</blockquote>`
+      },
+      kitsune: {
+        titulo: "Los Kitsune: Guardianes del Fuego Sagrado",
+        imagen: "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> Espíritus zorro procedentes de los reinos brumosos de Oriente. A medida que ganan sabiduría, desarrollan más colas y su fuego sagrado se vuelve más brillante.</p>
+                      <p><strong>Habilidades innatas:</strong> Generación de fuego azul (Kitsunebi), creación de ilusiones perfectas que engañan los 5 sentidos y dotes innatas de persuasión mística.</p>
+                      <blockquote>"La realidad es un juego de espejos. Solo debes saber cuál quebrar."</blockquote>`
+      },
+      cambiaformas: {
+        titulo: "Los Cambia-formas: Carne Fluida",
+        imagen: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> Criaturas cuya estructura celular carece de una forma fija absoluta. Son los espías perfectos y los seres más enigmáticos de los mercados negros moleculares.</p>
+                      <p><strong>Habilidades innatas:</strong> Mimetismo biológico perfecto (pueden duplicar el aspecto, voz y rastro de cualquier humano o animal mediano) y elasticidad de combate.</p>
+                      <blockquote>"Si puedes ser cualquiera, el verdadero desafío es recordar quién eres al despertar."</blockquote>`
+      },
+      nereidas: {
+        titulo: "Las Nereidas: Clanes del Abismo",
+        imagen: "https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> Guardianes marinos nacidos en las fosas del océano primordial. Tienen una conexión indisoluble con las mareas y las criaturas abisales.</p>
+                      <p><strong>Habilidades innatas:</strong> Hidrokinesis absoluta (control del agua), respiración anfibia, canto de sirena desorientador y curación acelerada al estar sumergidos.</p>
+                      <blockquote>"El océano lo reclama todo al final. Los imperios caen, las mareas permanecen."</blockquote>`
+      },
+      elfos: {
+        titulo: "Los Elfos: Los Primeros Nacidos",
+        imagen: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Origen:</strong> La primera raza inteligente moldeada directamente por las runas del mundo. Viven miles de años y son artesanos divinos, eruditos históricos y arqueros formidables.</p>
+                      <p><strong>Habilidades innatas:</strong> Longevidad extrema, sintonía de vida silvestre, herboristería avanzada y dominio perfecto de las runas antiguas de protección.</p>
+                      <blockquote>"Vemos reinos alzarse y desmoronarse como las estaciones del año. El tiempo es nuestro aliado."</blockquote>`
+      }
+    };
+
+    // --- BASE DE DATOS DE LAS CASAS ACADÉMICAS ---
+    const enciclopediaCasas = {
+      elenare: {
+        titulo: "Elenarë: El Sendero del Ciervo",
+        imagen: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Filosofía:</strong> Sabiduría, Paciencia y Conexión. Los miembros de Elenarë creen que el poder sin conocimiento es un fuego destructivo que consume al propio invocador.</p>
+                      <p><strong>Virtudes Clave:</strong> Comprensión profunda de las leyes del Nexo, control mental absoluto, excelencia en herboristería, runas sagradas y diplomacia elemental.</p>
+                      <p><strong>Emblema:</strong> El Ciervo Plateado, símbolo de guía, paso firme y misticismo silencioso en los bosques antiguos.</p>
+                      <blockquote>"Observa el bosque crecer; en su calma se esconde el verdadero tejido de la eternidad."</blockquote>`
+      },
+      caraxes: {
+        titulo: "Caraxes: El Bastión del Escorpión",
+        imagen: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Filosofía:</strong> Ambición, Estrategia y Control. Caraxes enseña que las reglas del plano son límites que los débiles se imponen a sí mismos. Buscan el dominio total de sus dotes.</p>
+                      <p><strong>Virtudes Clave:</strong> Liderazgo político indiscutible, maestría en duelos mágicos agresivos, tácticas de contraataque y desvelación de artes arcanas prohibidas u ocultas.</p>
+                      <p><strong>Emblema:</strong> El Escorpión Dorado sobre negro, reflejo de paciencia letal y un aguijón que ataca solo cuando la victoria está garantizada.</p>
+                      <blockquote>"El poder no se concede de rodillas, le pertenece a las manos que deciden tomarlo."</blockquote>`
+      },
+      varnethir: {
+        titulo: "Varnëthir: La Manada del Lobo",
+        imagen: "https://images.unsplash.com/photo-1590424753858-394a95385a4a?auto=format&fit=crop&q=80&w=700",
+        descripcion: `<p><strong>Filosofía:</strong> Lealtad, Justicia y Hermandad. Para un Varnëthir, ningún mago camina solo. Su poder se multiplica exponencialmente cuando luchan codo con codo para proteger el reino.</p>
+                      <p><strong>Virtudes Clave:</strong> Alta resistencia en combates físicos y espirituales, sinergia perfecta de hechizos grupales, protección de aliados y sentido de la rectitud inquebrantable.</p>
+                      <p><strong>Emblema:</strong> El Lobo aullando bajo el lucero, representando la fuerza de la manada, la supervivencia y el honor en los campos de batalla.</p>
+                      <blockquote>"Un lobo puede caer frente a la tormenta, pero la manada ruge unida y reclama el amanecer."</blockquote>`
+      }
+    };
+
+    function abrirMisteriosRaza(llaveRaza) {
+      const info = enciclopediaRazas[llaveRaza];
+      if (!info) return;
+      document.getElementById("modal-titulo-raza").innerText = info.titulo;
+      document.getElementById("modal-img-raza").src = info.imagen;
+      document.getElementById("modal-descripcion-raza").innerHTML = info.descripcion;
+      document.getElementById("modal-misterios").classList.add("active");
+    }
+
+    function abrirMisteriosFaccion(llaveCasa) {
+      const info = enciclopediaCasas[llaveCasa];
+      if (!info) return;
+      document.getElementById("modal-titulo-raza").innerText = info.titulo;
+      document.getElementById("modal-img-raza").src = info.imagen;
+      document.getElementById("modal-descripcion-raza").innerHTML = info.descripcion;
+      document.getElementById("modal-misterios").classList.add("active");
+    }
+
+    function cerrarMisteriosRaza(event) {
+      document.getElementById("modal-misterios").classList.remove("active");
+    }
+
+    // --- PANTALLA DE ACCESO DENEGADO ---
+    function mostrarAccesoDenegado(mensaje) {
+      localStorage.removeItem("token");
+      document.getElementById("login").style.display = "flex";
+      document.getElementById("app").style.display = "none";
+      document.getElementById("login-card-contenido").innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 15px;">🚫</div>
+        <h2 style="color: var(--color-rojo);">Acceso Denegado</h2>
+        <p style="color: #8a9fc4; margin-bottom: 25px;">${mensaje}</p>
+        <a class="btn" href="https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify%20guilds.members.read">
+          🔄 Intentar con otra cuenta
+        </a>
+      `;
+    }
+
+    function checkLogin() {
+      const hash = window.location.hash;
+      if (hash.includes("access_token")) {
+        const token = new URLSearchParams(hash.replace("#", "?")).get("access_token");
+        if (token) { localStorage.setItem("token", token); window.location.hash = ""; }
+      }
+      return !!localStorage.getItem("token");
+    }
+
+    async function loadUser() {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        // 1. Obtener datos básicos del usuario
+        const resUser = await fetch("https://discord.com/api/users/@me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!resUser.ok) { logout(); return; }
+        const user = await resUser.json();
+
+        // 2. Obtener sus roles en el servidor
+        const resMember = await fetch(`https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!resMember.ok) {
+          mostrarAccesoDenegado("No eres miembro del servidor de Discord del Reino Arcano. Únete primero y vuelve a intentarlo.");
+          return;
+        }
+
+        const member = await resMember.json();
+        currentUserRoles = member.roles || [];
+
+        // 3. Verificar si tiene alguno de los roles de acceso general
+        const tieneAcceso = ROLES_ACCESO.some(rol => currentUserRoles.includes(rol));
+        if (!tieneAcceso) {
+          mostrarAccesoDenegado("No posees los rangos necesarios para acceder al Reino Arcano. Contacta con un administrador del servidor.");
+          return;
+        }
+
+        // 4. Acceso concedido — cargar la app
+        document.getElementById("login").style.display = "none";
+        document.getElementById("app").style.display = "block";
+
+        // 5. Mostrar datos del usuario
+        document.getElementById("username").innerText = user.username;
+        if (user.avatar) {
+          document.getElementById("avatar").innerHTML = `<img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png">`;
+        }
+
+        // 6. Mostrar u ocultar el botón de Admin según el rol
+        const esAdmin = currentUserRoles.includes(ROL_ADMIN);
+        document.getElementById("btn-panel-admin").style.display = esAdmin ? "inline-block" : "none";
+
+      } catch (e) {
+        console.error(e);
+        mostrarAccesoDenegado("Ocurrió un error verificando tus credenciales. Inténtalo de nuevo.");
+      }
+    }
+
+    function abrirPanelAdmin() {
+      // Doble verificación en cliente antes de abrir el panel
+      const esAdmin = currentUserRoles.includes(ROL_ADMIN);
+      if (!esAdmin) {
+        alert("⛔ Acceso restringido. No posees el rango del Alto Concilio para acceder a este panel.");
+        return;
+      }
+      cambiarAPantallaFicha('seccion-admin');
+    }
+
+    function logout() { localStorage.removeItem("token"); window.location.reload(); }
+
+    function cambiarAPantallaFicha(idSeccion) {
+      document.getElementById("reino-contenido").style.display = "none";
+      document.getElementById("seccion-ficha-alumno").style.display = "none";
+      document.getElementById("seccion-ficha-profesor").style.display = "none";
+      document.getElementById("seccion-admin").style.display = "none";
+      
+      document.getElementById(idSeccion).style.display = "block";
+      if(idSeccion === 'seccion-admin') { renderizarAdmin(); }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function regresarAlMenuReino() {
+      document.getElementById("seccion-ficha-alumno").style.display = "none";
+      document.getElementById("seccion-ficha-profesor").style.display = "none";
+      document.getElementById("seccion-admin").style.display = "none";
+      document.getElementById("reino-contenido").style.display = "block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function agregarLog(texto) {
+      const ahora = new Date().toLocaleTimeString();
+      logsActividad.unshift(`<span>[${ahora}]</span> ${texto}`);
+      renderizarLogs();
+    }
+
+    function renderizarLogs() {
+      document.getElementById("contenedor-logs").innerHTML = logsActividad.map(l => `<div class="log-item">${l}</div>`).join('');
+    }
+
+    function cambiarFiltroTab(nuevoEstado) {
+      filtroTabActual = nuevoEstado;
+      document.getElementById("tab-pendientes").classList.remove("active");
+      document.getElementById("tab-aprobados").classList.remove("active");
+      document.getElementById("tab-rechazados").classList.remove("active");
+
+      if(nuevoEstado === 'Pendiente') document.getElementById("tab-pendientes").classList.add("active");
+      if(nuevoEstado === 'Aprobado') document.getElementById("tab-aprobados").classList.add("active");
+      if(nuevoEstado === 'Rechazado') document.getElementById("tab-rechazados").classList.add("active");
+
+      document.getElementById("revisor-detalles").style.display = "none";
+      renderizarAdmin();
+    }
+
+    function renderizarAdmin() {
+      document.getElementById("m-pendientes").innerText = baseFichas.filter(f => f.estado === "Pendiente").length;
+      document.getElementById("m-aprobadas").innerText = baseFichas.filter(f => f.estado === "Aprobado").length;
+      document.getElementById("m-rechazadas").innerText = baseFichas.filter(f => f.estado === "Rechazado").length;
+
+      renderizarLogs();
+      const fichasFiltradas = baseFichas.filter(f => f.estado === filtroTabActual);
+      const tablaCuerpo = document.getElementById("tabla-fichas-cuerpo");
+
+      if(fichasFiltradas.length === 0) {
+        tablaCuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#8a9fc4; font-style:italic;">No hay pergaminos arcanos en este estado.</td></tr>`;
+        return;
+      }
+
+      tablaCuerpo.innerHTML = fichasFiltradas.map(f => `
+        <tr>
+          <td>${f.discordUser}</td>
+          <td><strong>${f.nombre} ${f.apellido}</strong></td>
+          <td>${f.tipo} / <span style="color:var(--color-oro);">${f.raza}</span></td>
+          <td><span class="badge ${f.estado.toLowerCase()}">${f.estado}</span></td>
+          <td>
+            <button class="btn-accion btn-revisar" onclick="revisarFichaEnPanel(${f.id})">🔍 Revisar</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function enviarFichaSimulada(event, tipo) {
+      event.preventDefault();
+      const userDiscord = document.getElementById("username").innerText;
+      
+      let nuevaFicha = {
+        id: Date.now(),
+        discordUser: userDiscord + "#0000",
+        tipo: tipo,
+        estado: "Pendiente"
+      };
+
+      const prefijo = tipo === 'Alumno' ? 'al' : 'prof';
+      nuevaFicha.nombre = document.getElementById(`${prefijo}-nombre`).value;
+      nuevaFicha.apellido = document.getElementById(`${prefijo}-apellido`).value;
+      nuevaFicha.raza = document.getElementById(`${prefijo}-raza`).value;
+      nuevaFicha.sangre = document.getElementById(`${prefijo}-sangre`).value;
+      nuevaFicha.fecha = document.getElementById(`${prefijo}-fecha`).value;
+      nuevaFicha.nacion = document.getElementById(`${prefijo}-nacionalidad`).value;
+      nuevaFicha.fisico = document.getElementById(`${prefijo}-fisico`).value;
+      nuevaFicha.psico = document.getElementById(`${prefijo}-psico`).value;
+      nuevaFicha.historia = document.getElementById(`${prefijo}-historia`).value;
+
+      if(tipo === 'Profesor') {
+        let materia = document.getElementById("prof-materia").value;
+        if(materia === 'Otra') materia = document.getElementById("prof-materia-otra").value;
+        nuevaFicha.extra = `<strong>Cátedra:</strong> ${materia}<br><strong>Drive:</strong> ${document.getElementById("prof-drive").value}`;
+      } else {
+        nuevaFicha.extra = "";
+      }
+
+      baseFichas.push(nuevaFicha);
+      agregarLog(`📝 Pergamino entrante de ${userDiscord} catalogado en la pestaña 'Pendientes'.`);
+      
+      alert("✨ Ficha enviada de manera exitosa. Compruébala en el Panel Admin.");
+      event.target.reset();
+      regresarAlMenuReino();
+    }
+
+    function revisarFichaEnPanel(id) {
+      const ficha = baseFichas.find(f => f.id === id);
+      if(!ficha) return;
+
+      document.getElementById("revisor-detalles").style.display = "block";
+      document.getElementById("rev-titulo").innerText = `📜 Analizando Ficha: ${ficha.nombre} ${ficha.apellido} (${ficha.tipo})`;
+      document.getElementById("rev-sangre").innerText = ficha.sangre;
+      document.getElementById("rev-nacion").innerText = ficha.nacion;
+      document.getElementById("rev-fisico").innerText = ficha.fisico;
+      document.getElementById("rev-psico").innerText = ficha.psico;
+      document.getElementById("rev-historia").innerText = ficha.historia;
+      document.getElementById("rev-extra-profesor").innerHTML = ficha.extra ? `<p>${ficha.extra}</p>` : "";
+
+      const btnContenedor = document.getElementById("botones-revisor");
+      let HTMLBotones = "";
+      
+      if (ficha.estado === "Pendiente") {
+        HTMLBotones += `
+          <button class="btn-accion btn-aceptar" onclick="resolverFicha(${ficha.id}, 'Aprobado')">🟢 Aprobar Ficha</button>
+          <button class="btn-accion btn-rechazar" onclick="resolverFicha(${ficha.id}, 'Rechazado')">🟠 Rechazar Ficha</button>
+        `;
+      } else if (ficha.estado === "Aprobado") {
+        HTMLBotones += `
+          <button class="btn-accion btn-reiniciar" onclick="reiniciarEstadoFicha(${ficha.id})">⚡ Reiniciar Estado (Volver al inicio)</button>
+        `;
+      } else {
+        HTMLBotones += `<span style="color:#8a9fc4; font-style:italic; line-height:30px; margin-right:15px;">Archivado en: ${ficha.estado}as.</span>`;
+      }
+
+      HTMLBotones += `<button class="btn-accion btn-eliminar" onclick="eliminarFichaTotalmente(${ficha.id})">❌ Eliminar Ficha</button>`;
+      btnContenedor.innerHTML = HTMLBotones;
+    }
+
+    function resolverFicha(id, nuevoEstado) {
+      const ficha = baseFichas.find(f => f.id === id);
+      if(!ficha) return;
+
+      ficha.estado = nuevoEstado;
+      
+      if(nuevoEstado === 'Aprobado') {
+        agregarLog(`🟢 La ficha de ${ficha.nombre} se movió automáticamente a 'Aprobadas'.`);
+        document.getElementById("status-ficha").innerText = `Ficha: ¡Aprobada!`;
+        
+        document.getElementById("bloque-registro-ficha").style.display = "none";
+
+        if (ficha.tipo === "Alumno") {
+          document.getElementById("bloque-test-casas").style.display = "block";
+          alert(`✨ Ficha de Ciudadano Aprobada. Se ha desbloqueado la ceremonia de asignación de Casa.`);
+        } else if (ficha.tipo === "Profesor") {
+          document.getElementById("house").innerText = "Casa: AELTHIRION 🦉 (Profesores)";
+          alert(`🔮 Ficha de Profesor Aprobada. Rango automático asignado: Aelthirion, la Casa del Búho.`);
+        }
+
+      } else {
+        const motivo = prompt("Especifica el motivo de rechazo:");
+        agregarLog(`🟠 La ficha de ${ficha.nombre} se movió a 'Rechazadas'. Motivo: ${motivo || 'No especificado'}`);
+      }
+
+      document.getElementById("revisor-detalles").style.display = "none";
+      renderizarAdmin();
+    }
+
+    function reiniciarEstadoFicha(id) {
+      const ficha = baseFichas.find(f => f.id === id);
+      if(!ficha) return;
+
+      const confirmar = confirm(`⚠ ¿Deseas revocar la aprobación de "${ficha.nombre}"?\nSe le quitará la casa asignada, el estado de aprobación y podrá registrarse de nuevo.`);
+      
+      if(confirmar) {
+        ficha.estado = "Pendiente";
+        document.getElementById("status-ficha").innerText = `Ficha: Sin enviar`;
+        document.getElementById("house").innerText = `Casa: Sin asignar`;
+        
+        document.getElementById("bloque-test-casas").style.display = "none";
+        document.getElementById("formulario-test").reset();
+        document.getElementById("bloque-registro-ficha").style.display = "block";
+
+        agregarLog(`⚡ El Concilio revocó la aprobación de ${ficha.nombre}. Usuario restablecido al estado inicial.`);
+        alert("✨ El rango y la casa han sido eliminados de forma exitosa. El perfil del usuario ha vuelto a su estado inicial.");
+        
+        document.getElementById("revisor-detalles").style.display = "none";
+        renderizarAdmin();
+      }
+    }
+
+    function calcularCasaTest(event) {
+      event.preventDefault();
+      
+      let contadores = { A: 0, B: 0, C: 0 };
+
+      for (let i = 1; i <= 6; i++) {
+        const opciones = document.getElementsByName(`p${i}`);
+        for (let op of opciones) {
+          if (op.checked) { contadores[op.value]++; }
+        }
+      }
+
+      let casaFinal = "";
+      let maxVotos = -1;
+
+      for (let letra in contadores) {
+        if (contadores[letra] > maxVotos) {
+          maxVotos = contadores[letra];
+          casaFinal = letra;
+        }
+      }
+
+      let nombreCasa = "";
+      if (casaFinal === "A") nombreCasa = "ELENARË 🦌 (Casa del Ciervo)";
+      if (casaFinal === "B") nombreCasa = "CARAXES 🦂 (Casa del Escorpión)";
+      if (casaFinal === "C") nombreCasa = "VARNËTHIR 🐺 (Casa del Lobo)";
+
+      document.getElementById("house").innerText = `Casa: ${nombreCasa}`;
+      document.getElementById("bloque-test-casas").style.display = "none";
+      
+      alert(`✨ Las estrellas han hablado: Has sido asignado a la casa de ${nombreCasa}. ¡Bienvenido a tu nuevo hogar!`);
+    }
+
+    function eliminarFichaTotalmente(id) {
+      const ficha = baseFichas.find(f => f.id === id);
+      if(!ficha) return;
+
+      const confirmar = confirm(`⚠ ¿Estás seguro de que deseas eliminar permanentemente la ficha?\nEsta acción purgará los registros.`);
+      if(confirmar) {
+        baseFichas = baseFichas.filter(f => f.id !== id);
+        agregarLog(`❌ El Concilio eliminó de forma permanente el pergamino de "${ficha.nombre}".`);
+        
+        document.getElementById("status-ficha").innerText = `Ficha: Sin enviar`;
+        document.getElementById("house").innerText = `Casa: Sin asignar`;
+        document.getElementById("bloque-test-casas").style.display = "none";
+        document.getElementById("bloque-registro-ficha").style.display = "block";
+
+        document.getElementById("revisor-detalles").style.display = "none";
+        renderizarAdmin();
+      }
+    }
+
+    window.onload = async function () {
+      const isLoggedIn = checkLogin();
+      if (isLoggedIn) {
+        // Mostrar spinner de verificación mientras comprobamos rangos
+        document.getElementById("login").style.display = "flex";
+        document.getElementById("app").style.display = "none";
+        document.getElementById("login-card-contenido").innerHTML = `
+          <div style="font-size: 3rem; margin-bottom: 15px;">🔮</div>
+          <h2>Verificando rangos...</h2>
+          <p style="color: #8a9fc4;">Consultando los pergaminos del Concilio Arcano.</p>
+        `;
+        await loadUser();
+      } else {
+        document.getElementById("login").style.display = "flex";
+        document.getElementById("app").style.display = "none";
+      }
+    };
+  </script>
+
+</body>
+</html>
