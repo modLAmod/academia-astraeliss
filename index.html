@@ -612,7 +612,12 @@
     document.getElementById("discordLogin").href =
       `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify%20guilds.members.read`;
  
-    let baseFichas = [];
+    // Cargar fichas desde localStorage (persisten entre recargas)
+    let baseFichas = JSON.parse(localStorage.getItem('baseFichas') || '[]');
+ 
+    function guardarFichas() {
+      localStorage.setItem('baseFichas', JSON.stringify(baseFichas));
+    }
     let currentUserRoles = []; // Roles del usuario en el servidor
  
     let logsActividad = [
@@ -792,7 +797,15 @@
           document.getElementById("avatar").innerHTML = `<img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png">`;
         }
  
-        // 6. Mostrar u ocultar el botón de Admin según el rol
+        // 6. Restaurar casa guardada si existe
+        const casaGuardada = localStorage.getItem('userCasa');
+        if (casaGuardada) {
+          document.getElementById("house").innerText = `Casa: ${casaGuardada}`;
+          document.getElementById("bloque-test-casas").style.display = "none";
+          document.getElementById("bloque-registro-ficha").style.display = "none";
+        }
+ 
+        // 7. Mostrar u ocultar el botón de Admin según el rol
         const esAdmin = currentUserRoles.includes(ROL_ADMIN);
         document.getElementById("btn-panel-admin").style.display = esAdmin ? "inline-block" : "none";
  
@@ -916,6 +929,7 @@
       }
  
       baseFichas.push(nuevaFicha);
+      guardarFichas();
       agregarLog(`📝 Pergamino entrante de ${userDiscord} catalogado en la pestaña 'Pendientes'.`);
       
       alert("✨ Ficha enviada de manera exitosa. Compruébala en el Panel Admin.");
@@ -962,6 +976,32 @@
     const BOT_URL    = "https://academia-astraeliss-production.up.railway.app";
     const BOT_SECRET = "ot94OfCAqLb3dibE7ZguCjLZtBtDhun-";
  
+    async function cambiarRolesEnDiscord_casa(discordId, casa) {
+      try {
+        const res = await fetch(`${BOT_URL}/asignar-casa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ discordId, casa, secret: BOT_SECRET })
+        });
+        const data = await res.json();
+        if (data.ok) console.log(`✅ Casa ${casa} asignada en Discord para ${data.usuario}`);
+        else console.warn("⚠️ Error asignando casa:", data.error);
+      } catch (e) { console.error("❌ No se pudo contactar con el bot:", e.message); }
+    }
+ 
+    async function cambiarRolesEnDiscord_profesor(discordId) {
+      try {
+        const res = await fetch(`${BOT_URL}/asignar-profesor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ discordId, secret: BOT_SECRET })
+        });
+        const data = await res.json();
+        if (data.ok) console.log(`✅ Rol profesor asignado en Discord para ${data.usuario}`);
+        else console.warn("⚠️ Error asignando profesor:", data.error);
+      } catch (e) { console.error("❌ No se pudo contactar con el bot:", e.message); }
+    }
+ 
     async function cambiarRolesEnDiscord(discordId) {
       try {
         const res = await fetch(`${BOT_URL}/aprobar-ficha`, {
@@ -985,6 +1025,7 @@
       if(!ficha) return;
  
       ficha.estado = nuevoEstado;
+      guardarFichas();
       
       if(nuevoEstado === 'Aprobado') {
         agregarLog(`🟢 La ficha de ${ficha.nombre} se movió automáticamente a 'Aprobadas'.`);
@@ -1005,6 +1046,8 @@
           alert(`✨ Ficha de Ciudadano Aprobada. Se ha desbloqueado la ceremonia de asignación de Casa.`);
         } else if (ficha.tipo === "Profesor") {
           document.getElementById("house").innerText = "Casa: AELTHIRION 🦉 (Profesores)";
+          localStorage.setItem('userCasa', 'AELTHIRION');
+          if (ficha.discordId) cambiarRolesEnDiscord_profesor(ficha.discordId);
           alert(`🔮 Ficha de Profesor Aprobada. Rango automático asignado: Aelthirion, la Casa del Búho.`);
         }
  
@@ -1063,13 +1106,19 @@
       }
  
       let nombreCasa = "";
-      if (casaFinal === "A") nombreCasa = "ELENARË 🦌 (Casa del Ciervo)";
-      if (casaFinal === "B") nombreCasa = "CARAXES 🦂 (Casa del Escorpión)";
-      if (casaFinal === "C") nombreCasa = "VARNËTHIR 🐺 (Casa del Lobo)";
+      let nombreCasaBot = "";
+      if (casaFinal === "A") { nombreCasa = "ELENARË 🦌 (Casa del Ciervo)"; nombreCasaBot = "Elenarë"; }
+      if (casaFinal === "B") { nombreCasa = "CARAXES 🦂 (Casa del Escorpión)"; nombreCasaBot = "Caraxe"; }
+      if (casaFinal === "C") { nombreCasa = "VARNËTHIR 🐺 (Casa del Lobo)"; nombreCasaBot = "Varnëthir"; }
  
       document.getElementById("house").innerText = `Casa: ${nombreCasa}`;
       document.getElementById("bloque-test-casas").style.display = "none";
-      
+      localStorage.setItem('userCasa', nombreCasa);
+ 
+      if (window.currentDiscordId && nombreCasaBot) {
+        cambiarRolesEnDiscord_casa(window.currentDiscordId, nombreCasaBot);
+      }
+ 
       alert(`✨ Las estrellas han hablado: Has sido asignado a la casa de ${nombreCasa}. ¡Bienvenido a tu nuevo hogar!`);
     }
  
@@ -1080,6 +1129,7 @@
       const confirmar = confirm(`⚠ ¿Estás seguro de que deseas eliminar permanentemente la ficha?\nEsta acción purgará los registros.`);
       if(confirmar) {
         baseFichas = baseFichas.filter(f => f.id !== id);
+        guardarFichas();
         agregarLog(`❌ El Concilio eliminó de forma permanente el pergamino de "${ficha.nombre}".`);
         
         document.getElementById("status-ficha").innerText = `Ficha: Sin enviar`;
