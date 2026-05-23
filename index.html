@@ -605,7 +605,7 @@
  
     // --- CONFIGURACIÓN DE ROLES Y SERVIDOR ---
     const GUILD_ID = "1505865987478650940";
-    const ROLES_ACCESO = ["1505931614600040640", "1505931432420446359"]; // Roles para entrar a la web
+    const ROLES_ACCESO = ["1505931430176231585", "1505931434282451096"]; // Roles para entrar a la web
     const ROL_ADMIN   = "1506969791683100774";                           // Rol para el Panel Admin
  
     // Scope ampliado: identify + guilds.members.read
@@ -798,8 +798,8 @@
         }
  
         // 6. Restaurar estado de ficha y casa al recargar
-        const fichaEstado = localStorage.getItem('fichaEstado');
-        const casaGuardada = localStorage.getItem('userCasa');
+        const fichaEstado = localStorage.getItem(`fichaEstado_${user.id}`);
+        const casaGuardada = localStorage.getItem(`userCasa_${user.id}`);
  
         if (fichaEstado === 'Aprobada') {
           document.getElementById("status-ficha").innerText = `Ficha: ¡Aprobada!`;
@@ -1037,7 +1037,7 @@
       if(nuevoEstado === 'Aprobado') {
         agregarLog(`🟢 La ficha de ${ficha.nombre} se movió automáticamente a 'Aprobadas'.`);
         document.getElementById("status-ficha").innerText = `Ficha: ¡Aprobada!`;
-        localStorage.setItem('fichaEstado', 'Aprobada');
+        localStorage.setItem(`fichaEstado_${window.currentDiscordId}`, 'Aprobada');
         
         document.getElementById("bloque-registro-ficha").style.display = "none";
  
@@ -1054,7 +1054,7 @@
           alert(`✨ Ficha de Ciudadano Aprobada. Se ha desbloqueado la ceremonia de asignación de Casa.`);
         } else if (ficha.tipo === "Profesor") {
           document.getElementById("house").innerText = "Casa: AELTHIRION 🦉 (Profesores)";
-          localStorage.setItem('userCasa', 'AELTHIRION');
+          localStorage.setItem(`userCasa_${window.currentDiscordId}`, 'AELTHIRION');
           if (ficha.discordId) cambiarRolesEnDiscord_profesor(ficha.discordId);
           alert(`🔮 Ficha de Profesor Aprobada. Rango automático asignado: Aelthirion, la Casa del Búho.`);
         }
@@ -1077,8 +1077,8 @@
       if(confirmar) {
         ficha.estado = "Pendiente";
         document.getElementById("status-ficha").innerText = `Ficha: Sin enviar`;
-        localStorage.removeItem('fichaEstado');
-        localStorage.removeItem('userCasa');
+        localStorage.removeItem(`fichaEstado_${window.currentDiscordId}`);
+        localStorage.removeItem(`userCasa_${window.currentDiscordId}`);
         document.getElementById("house").innerText = `Casa: Sin asignar`;
         
         document.getElementById("bloque-test-casas").style.display = "none";
@@ -1123,7 +1123,7 @@
  
       document.getElementById("house").innerText = `Casa: ${nombreCasa}`;
       document.getElementById("bloque-test-casas").style.display = "none";
-      localStorage.setItem('userCasa', nombreCasa);
+      localStorage.setItem(`userCasa_${window.currentDiscordId}`, nombreCasa);
  
       if (window.currentDiscordId && nombreCasaBot) {
         cambiarRolesEnDiscord_casa(window.currentDiscordId, nombreCasaBot);
@@ -1146,8 +1146,8 @@
         document.getElementById("house").innerText = `Casa: Sin asignar`;
         document.getElementById("bloque-test-casas").style.display = "none";
         document.getElementById("bloque-registro-ficha").style.display = "block";
-        localStorage.removeItem('fichaEstado');
-        localStorage.removeItem('userCasa');
+        localStorage.removeItem(`fichaEstado_${window.currentDiscordId}`);
+        localStorage.removeItem(`userCasa_${window.currentDiscordId}`);
  
         document.getElementById("revisor-detalles").style.display = "none";
         renderizarAdmin();
