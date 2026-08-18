@@ -1,3 +1,9 @@
+const DISCORD_CLIENT_ID = "1506739511969714237";
+const ADMIN_DISCORD_IDS = [
+  "TU_ID_PERSONAL_DE_DISCORD"
+];
+const DISCORD_CLIENT_SECRET = "XPJLkAVnQgtoIZ6XidiNv5d44r-Hvmvp";
+
 let currentUser = null;
 
 function showSection(sectionId) {
