@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Portal de Lore</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <nav>
+    <h2>ARCANUM</h2>
+
+    <div>
+      <button onclick="showSection('home')">Inicio</button>
+      <button onclick="showSection('lore')">Lore</button>
+      <button onclick="showSection('character')">Mi ficha</button>
+      <button id="adminButton" onclick="showSection('admin')" class="hidden">
+        Admin
+      </button>
+
+      <button id="loginButton" onclick="showSection('login')">
+        Login
+      </button>
+
+      <button id="logoutButton" onclick="logout()" class="hidden">
+        Salir
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <section id="home">
+      <h1>Bienvenido</h1>
+
+      <p>
+        Consulta el lore del servidor y crea tu personaje.
+      </p>
+    </section>
+
+    <section id="lore" class="hidden">
+      <h1>Lore</h1>
+
+      <div class="card">
+        <h2>Historia</h2>
+
+        <p>
+          Aquí puedes poner toda la historia del servidor.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Razas</h2>
+
+        <p>
+          Aquí puedes explicar las razas disponibles.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Magia</h2>
+
+        <p>
+          Aquí puedes explicar cómo funciona la magia.
+        </p>
+      </div>
+    </section>
+
+    <section id="login" class="hidden">
+      <h1>Iniciar sesión</h1>
+
+      <p>
+        Para probar:
+        <br>
+        jugador
+        <br>
+        admin
+      </p>
+
+      <input
+        id="username"
+        placeholder="Usuario"
+      >
+
+      <button onclick="login()">
+        Entrar
+      </button>
+
+      <p id="loginError"></p>
+    </section>
+
+    <section id="character" class="hidden">
+      <h1>Ficha de personaje</h1>
+
+      <div id="characterStatus"></div>
+
+      <form id="characterForm">
+
+        <label>Nombre</label>
+
+        <input
+          id="characterName"
+          required
+        >
+
+        <label>Edad</label>
+
+        <input
+          id="characterAge"
+          type="number"
+          required
+        >
+
+        <label>Raza</label>
+
+        <select id="characterRace" required>
+
+          <option value="">
+            Selecciona
+          </option>
+
+          <option>
+            Humano
+          </option>
+
+          <option>
+            Elfo
+          </option>
+
+          <option>
+            Cambiaformas
+          </option>
+
+          <option>
+            Vampiro
+          </option>
+
+        </select>
+
+        <label>Historia</label>
+
+        <textarea
+          id="characterStory"
+          required
+        ></textarea>
+
+        <button>
+          Enviar ficha
+        </button>
+
+      </form>
+    </section>
+
+    <section id="admin" class="hidden">
+
+      <h1>Panel de administración</h1>
+
+      <div id="adminApplications"></div>
+
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
