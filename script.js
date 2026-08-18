@@ -4,6 +4,18 @@ const ADMIN_DISCORD_IDS = [
 ];
 const DISCORD_CLIENT_SECRET = "XPJLkAVnQgtoIZ6XidiNv5d44r-Hvmvp";
 
+const DISCORD_CLIENT_ID = "1506739511969714237";
+
+const REDIRECT_URI =
+  "https://modlamod.github.io/academia-astraeliss/";
+
+document.getElementById("loginDiscord").href =
+  "https://discord.com/oauth2/authorize" +
+  "?client_id=" + DISCORD_CLIENT_ID +
+  "&response_type=code" +
+  "&redirect_uri=" + encodeURIComponent(REDIRECT_URI) +
+  "&scope=identify";
+
 let currentUser = null;
 
 function showSection(sectionId) {
