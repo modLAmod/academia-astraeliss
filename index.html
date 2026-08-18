@@ -1,171 +1,540 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Portal de Lore</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link rel="stylesheet" href="style.css">
+  <title>
+    Portal del Servidor
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
 
 <body>
 
-  <nav>
-    <h2>ARCANUM</h2>
+<nav>
 
-    <div>
-      <button onclick="showSection('home')">Inicio</button>
-      <button onclick="showSection('lore')">Lore</button>
-      <button onclick="showSection('character')">Mi ficha</button>
-      <button id="adminButton" onclick="showSection('admin')" class="hidden">
-        Admin
-      </button>
+  <div
+    class="brand"
+    onclick="showSection('home')"
+  >
+    ARCANUM
+  </div>
 
-      <button id="loginButton" onclick="showSection('login')">
-        Login
-      </button>
+  <div class="nav-links">
 
-      <button id="logoutButton" onclick="logout()" class="hidden">
-        Salir
-      </button>
-    </div>
-  </nav>
+    <button
+      onclick="showSection('home')"
+    >
+      Inicio
+    </button>
 
-  <main>
+    <button
+      onclick="showSection('lore')"
+    >
+      Lore
+    </button>
 
-    <section id="home">
-      <h1>Bienvenido</h1>
+    <button
+      onclick="showSection('character')"
+    >
+      Mi personaje
+    </button>
+
+    <button
+      id="adminButton"
+      class="hidden"
+      onclick="showSection('admin')"
+    >
+      Administración
+    </button>
+
+  </div>
+
+  <div class="account">
+
+    <a
+      id="loginButton"
+      class="discord-login"
+      href="/auth/discord"
+    >
+      Iniciar sesión con Discord
+    </a>
+
+    <div
+      id="discordUser"
+      class="discord-user hidden"
+    ></div>
+
+    <button
+      id="logoutButton"
+      class="logout hidden"
+      onclick="logout()"
+    >
+      Salir
+    </button>
+
+  </div>
+
+</nav>
+
+
+<main>
+
+  <!-- ====================== -->
+  <!-- INICIO -->
+  <!-- ====================== -->
+
+  <section
+    id="home"
+    class="page"
+  >
+
+    <div class="hero">
+
+      <span class="subtitle">
+        PORTAL OFICIAL
+      </span>
+
+      <h1>
+        Bienvenido al servidor
+      </h1>
 
       <p>
-        Consulta el lore del servidor y crea tu personaje.
-      </p>
-    </section>
-
-    <section id="lore" class="hidden">
-      <h1>Lore</h1>
-
-      <div class="card">
-        <h2>Historia</h2>
-
-        <p>
-          Aquí puedes poner toda la historia del servidor.
-        </p>
-      </div>
-
-      <div class="card">
-        <h2>Razas</h2>
-
-        <p>
-          Aquí puedes explicar las razas disponibles.
-        </p>
-      </div>
-
-      <div class="card">
-        <h2>Magia</h2>
-
-        <p>
-          Aquí puedes explicar cómo funciona la magia.
-        </p>
-      </div>
-    </section>
-
-    <section id="login" class="hidden">
-      <h1>Iniciar sesión</h1>
-
-      <p>
-        Para probar:
-        <br>
-        jugador
-        <br>
-        admin
+        Descubre nuestro mundo,
+        conoce su historia y crea
+        un personaje que forme
+        parte de ella.
       </p>
 
-      <input
-        id="username"
-        placeholder="Usuario"
-      >
+      <div class="hero-buttons">
 
-      <button onclick="login()">
-        Entrar
-      </button>
-
-      <p id="loginError"></p>
-    </section>
-
-    <section id="character" class="hidden">
-      <h1>Ficha de personaje</h1>
-
-      <div id="characterStatus"></div>
-
-      <form id="characterForm">
-
-        <label>Nombre</label>
-
-        <input
-          id="characterName"
-          required
+        <button
+          class="primary"
+          onclick="showSection('lore')"
         >
-
-        <label>Edad</label>
-
-        <input
-          id="characterAge"
-          type="number"
-          required
-        >
-
-        <label>Raza</label>
-
-        <select id="characterRace" required>
-
-          <option value="">
-            Selecciona
-          </option>
-
-          <option>
-            Humano
-          </option>
-
-          <option>
-            Elfo
-          </option>
-
-          <option>
-            Cambiaformas
-          </option>
-
-          <option>
-            Vampiro
-          </option>
-
-        </select>
-
-        <label>Historia</label>
-
-        <textarea
-          id="characterStory"
-          required
-        ></textarea>
-
-        <button>
-          Enviar ficha
+          Explorar Lore
         </button>
 
-      </form>
-    </section>
+        <button
+          onclick="showSection('character')"
+        >
+          Crear personaje
+        </button>
 
-    <section id="admin" class="hidden">
+      </div>
 
-      <h1>Panel de administración</h1>
+    </div>
 
-      <div id="adminApplications"></div>
+    <div class="cards">
 
-    </section>
+      <div class="card">
 
-  </main>
+        <h2>
+          Lore
+        </h2>
 
-  <script src="script.js"></script>
+        <p>
+          Historia, razas,
+          lugares, magia,
+          facciones y mucho más.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <h2>
+          Personajes
+        </h2>
+
+        <p>
+          Crea tu ficha y espera
+          la revisión del staff.
+        </p>
+
+      </div>
+
+
+      <div class="card">
+
+        <h2>
+          Comunidad
+        </h2>
+
+        <p>
+          Tu cuenta queda
+          vinculada directamente
+          con Discord.
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ====================== -->
+  <!-- LORE -->
+  <!-- ====================== -->
+
+  <section
+    id="lore"
+    class="page hidden"
+  >
+
+    <div class="page-header">
+
+      <span class="subtitle">
+        ARCHIVOS DEL MUNDO
+      </span>
+
+      <h1>
+        Lore
+      </h1>
+
+      <p>
+        Todo lo necesario para
+        conocer el mundo antes
+        de crear tu personaje.
+      </p>
+
+    </div>
+
+
+    <div class="cards">
+
+      <article class="card">
+
+        <h2>
+          Historia
+        </h2>
+
+        <p>
+          Aquí irá la historia
+          general del servidor.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <h2>
+          Razas
+        </h2>
+
+        <p>
+          Aquí irán todas las
+          razas disponibles.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <h2>
+          Magia
+        </h2>
+
+        <p>
+          Funcionamiento de la
+          magia y sus reglas.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <h2>
+          Facciones
+        </h2>
+
+        <p>
+          Organizaciones,
+          órdenes y grupos.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <h2>
+          Lugares
+        </h2>
+
+        <p>
+          Reinos, ciudades,
+          regiones y zonas
+          importantes.
+        </p>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <!-- ====================== -->
+  <!-- PERSONAJE -->
+  <!-- ====================== -->
+
+  <section
+    id="character"
+    class="page hidden"
+  >
+
+    <div class="page-header">
+
+      <span class="subtitle">
+        PERSONAJE
+      </span>
+
+      <h1>
+        Mi ficha
+      </h1>
+
+    </div>
+
+
+    <div
+      id="notLoggedCharacter"
+      class="card hidden"
+    >
+
+      <h2>
+        Inicia sesión
+      </h2>
+
+      <p>
+        Necesitas iniciar sesión
+        con Discord para crear
+        tu personaje.
+      </p>
+
+      <a
+        href="/auth/discord"
+        class="discord-login"
+      >
+        Iniciar sesión con Discord
+      </a>
+
+    </div>
+
+
+    <div
+      id="characterStatus"
+      class="card hidden"
+    ></div>
+
+
+    <form
+      id="characterForm"
+      class="form-card hidden"
+    >
+
+      <h2>
+        Crear personaje
+      </h2>
+
+
+      <label>
+        Nombre y apellidos
+      </label>
+
+      <input
+        id="characterName"
+        required
+      >
+
+
+      <label>
+        Edad
+      </label>
+
+      <input
+        id="characterAge"
+        type="number"
+        min="1"
+        required
+      >
+
+
+      <label>
+        Raza
+      </label>
+
+      <select
+        id="characterRace"
+        required
+      >
+
+        <option value="">
+          Selecciona una raza
+        </option>
+
+        <option>
+          Humano
+        </option>
+
+        <option>
+          Elfo
+        </option>
+
+        <option>
+          Cambiaformas
+        </option>
+
+        <option>
+          Vampiro
+        </option>
+
+        <option>
+          Otra
+        </option>
+
+      </select>
+
+
+      <label>
+        Lugar de nacimiento
+      </label>
+
+      <input
+        id="characterBirthplace"
+        required
+      >
+
+
+      <label>
+        Personalidad
+      </label>
+
+      <textarea
+        id="characterPersonality"
+        required
+      ></textarea>
+
+
+      <label>
+        Historia
+      </label>
+
+      <textarea
+        id="characterStory"
+        class="big-textarea"
+        required
+      ></textarea>
+
+
+      <label>
+        Objetivos
+      </label>
+
+      <textarea
+        id="characterGoals"
+        required
+      ></textarea>
+
+
+      <button
+        type="submit"
+        class="primary"
+      >
+        Enviar ficha
+      </button>
+
+      <p
+        id="characterError"
+        class="error"
+      ></p>
+
+    </form>
+
+  </section>
+
+
+  <!-- ====================== -->
+  <!-- ADMIN -->
+  <!-- ====================== -->
+
+  <section
+    id="admin"
+    class="page hidden"
+  >
+
+    <div class="page-header">
+
+      <span class="subtitle">
+        STAFF
+      </span>
+
+      <h1>
+        Administración
+      </h1>
+
+    </div>
+
+
+    <div class="admin-tabs">
+
+      <button
+        class="primary"
+        onclick="loadAdmin('pending')"
+      >
+        Pendientes
+      </button>
+
+      <button
+        onclick="loadAdmin('approved')"
+      >
+        Aprobadas
+      </button>
+
+      <button
+        onclick="loadAdmin('rejected')"
+      >
+        Denegadas
+      </button>
+
+      <button
+        onclick="loadAdmin()"
+      >
+        Todas
+      </button>
+
+    </div>
+
+
+    <div
+      id="adminApplications"
+    ></div>
+
+  </section>
+
+</main>
+
+
+<script src="script.js"></script>
 
 </body>
+
 </html>
