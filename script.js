@@ -5,8 +5,8 @@
 // La "anon public key" SÍ puede ir aquí, está pensada para el navegador.
 // El "service_role key" y el "Client Secret" de Discord NUNCA van en este archivo.
 // ============================================================
-const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-const SUPABASE_ANON_KEY = "TU-ANON-PUBLIC-KEY";
+const SUPABASE_URL = "https://modlamod.github.io/academia-astraeliss/";
+const SUPABASE_ANON_KEY = "Ky9tIacauqspXFGg9PX3LSPM5J5bvvkG";
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
