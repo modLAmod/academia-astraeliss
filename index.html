@@ -1,1 +1,147 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Archivo de Rol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Se ve mientras comprobamos si ya hay sesión iniciada -->
+  <div id="view-loading" class="login-body">
+    <p class="loading-text">Cargando…</p>
+  </div>
+
+  <!-- Vista: no logueado -->
+  <main id="view-login" class="login-body" hidden>
+    <div class="login-card">
+      <span class="brand__mark brand__mark--big">&#10023;</span>
+      <h1>Archivo de Rol</h1>
+      <p class="login-card__subtitle">Presenta tu ficha. Que el consejo decida.</p>
+
+      <p id="login-error" class="alert alert--error" hidden></p>
+
+      <button id="btn-discord" class="btn btn--discord" type="button">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="currentColor" d="M20.3 4.4A19.8 19.8 0 0 0 15.7 3l-.3.6a14 14 0 0 1 4 1.6 15.9 15.9 0 0 0-14.8 0 14 14 0 0 1 4.2-1.6L8.4 3a19.7 19.7 0 0 0-4.6 1.4C1 9 .3 13.5.6 17.9a20 20 0 0 0 6 3l1-1.6a12.9 12.9 0 0 1-1.9-.9l.5-.4a14.3 14.3 0 0 0 12 0l.5.4c-.6.4-1.2.6-1.9.9l1 1.6a20 20 0 0 0 6-3c.4-5.1-.9-9.6-3.5-13.5ZM8.8 15c-.9 0-1.7-.9-1.7-2s.7-2 1.7-2c1 0 1.8.9 1.7 2 0 1.1-.7 2-1.7 2Zm6.4 0c-.9 0-1.7-.9-1.7-2s.7-2 1.7-2c1 0 1.8.9 1.7 2 0 1.1-.7 2-1.7 2Z"/>
+        </svg>
+        Entrar con Discord
+      </button>
+
+      <p class="login-card__hint">Necesitas una cuenta de Discord para acceder.</p>
+    </div>
+  </main>
+
+  <!-- Vista: logueado -->
+  <div id="view-app" class="layout" hidden>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand__mark">&#10023;</span>
+        <span class="brand__text">Archivo<br />de Rol</span>
+      </div>
+
+      <nav class="nav">
+        <button class="nav__link is-active" data-view-btn="ficha" type="button">Mi ficha</button>
+        <button class="nav__link" data-view-btn="staff" id="nav-staff" type="button" hidden>Panel de staff</button>
+      </nav>
+
+      <div class="user-card">
+        <img id="user-avatar" class="user-card__avatar" src="" alt="" />
+        <div class="user-card__meta">
+          <span id="user-name" class="user-card__name"></span>
+          <span id="user-role" class="user-card__role"></span>
+        </div>
+      </div>
+      <button id="btn-logout" class="btn btn--ghost btn--block" type="button">Cerrar sesión</button>
+    </aside>
+
+    <main class="content">
+
+      <!-- Sub-vista: mi ficha -->
+      <section id="view-ficha" data-view="ficha">
+        <header class="content__header">
+          <h1>Mi ficha de personaje</h1>
+          <p id="ficha-lede" class="content__lede"></p>
+        </header>
+
+        <p id="ficha-msg" class="alert" hidden></p>
+
+        <section class="dossier">
+          <div id="ficha-stamp"></div>
+          <div id="ficha-motivo"></div>
+          <div id="ficha-body"></div>
+        </section>
+      </section>
+
+      <!-- Sub-vista: panel de staff -->
+      <section id="view-staff" data-view="staff" hidden>
+        <header class="content__header">
+          <h1>Panel de staff</h1>
+          <p class="content__lede">Revisa, aprueba o deniega las fichas presentadas.</p>
+        </header>
+
+        <p id="staff-msg" class="alert" hidden></p>
+
+        <nav class="tabs">
+          <button class="tabs__link is-active" data-filter="" type="button">Todas</button>
+          <button class="tabs__link" data-filter="pendiente" type="button">Pendientes</button>
+          <button class="tabs__link" data-filter="aprobada" type="button">Aprobadas</button>
+          <button class="tabs__link" data-filter="denegada" type="button">Denegadas</button>
+        </nav>
+
+        <div id="staff-list" class="staff-list"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Plantilla del formulario de ficha (se clona por JS) -->
+  <template id="tpl-ficha-form">
+    <form class="ficha-form" id="ficha-form">
+      <label>
+        Nombre del personaje
+        <input type="text" name="nombre_personaje" required maxlength="80" placeholder="Ej. Lyra Vaelthorn" />
+      </label>
+      <div class="ficha-form__row">
+        <label>
+          Edad
+          <input type="text" name="edad" maxlength="20" placeholder="Ej. 27" />
+        </label>
+        <label>
+          Raza / especie
+          <input type="text" name="raza" maxlength="60" placeholder="Ej. Elfa del bosque" />
+        </label>
+      </div>
+      <label>
+        Imagen de referencia (URL)
+        <input type="url" name="imagen_url" maxlength="300" placeholder="https://..." />
+      </label>
+      <label>
+        Apariencia física
+        <textarea name="apariencia" rows="3" placeholder="Descripción física del personaje"></textarea>
+      </label>
+      <label>
+        Historia / trasfondo
+        <textarea name="historia" rows="6" placeholder="Backstory del personaje"></textarea>
+      </label>
+      <label>
+        Habilidades
+        <textarea name="habilidades" rows="3" placeholder="Poderes, talentos, debilidades..."></textarea>
+      </label>
+      <button class="btn btn--gold" type="submit" id="ficha-submit-btn">Enviar ficha</button>
+    </form>
+  </template>
+
+  <!-- SDK de Supabase (UMD, expone window.supabase) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
